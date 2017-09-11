@@ -2,7 +2,7 @@
  * Created by Akshat on 05-09-2017.
  */
 import React, {Component} from 'React';
-import {View, Text, TouchableOpacity } from 'react-native';
+import {View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import {Actions} from 'react-native-router-flux';
 
 import {connect} from 'react-redux';
@@ -49,11 +49,34 @@ class LoginForm extends Component{
     }
 
     render(){
-        const {emailChanged, passwordChanged, email, password} = this.props;
+        const {emailChanged, passwordChanged, email, password, loading} = this.props;
         const {forgotPasswordTextStyle} = style;
 
+        const forgotPasswordSection = ()=>{
+            if(loading !==true){
+                return (
+                    <Section style={{ display: 'flex', justifyContent:'center', flexDirection: 'row'}}>
+                        <TouchableOpacity onPress={()=>{Actions.forgotPassword()}}>
+                            <Text style={forgotPasswordTextStyle}>Forgot Password</Text>
+                        </TouchableOpacity>
+                    </Section>
+                )
+            }
+
+        };
+        const loadingSpinner = ()=>{
+            if(loading){
+                return <ActivityIndicator />
+            }
+        };
         const loadButton = ()=>{
             const {validateEmail, validatePassword} = aks.default;
+            if(loading){
+                //if loading is true, do not show buttons
+                return (
+                    <Section />
+                )
+            }
             if(validateEmail(email) && validatePassword(password)){
                 return (
                     <Button backgroundColor="#397af8"
@@ -61,14 +84,14 @@ class LoginForm extends Component{
                             fontWeight={'500'}
                             onPress={this.onLogin.bind(this)}
                             title='LOGIN' />
-                )
+                 )
             }else{
                 return (
-                    <Button color="#fff"
+                     <Button color="#fff"
                             fontWeight={'500'}
-                             fontSize={theme.btnFontSize}
+                            fontSize={theme.btnFontSize}
                             title='LOGIN' />
-                )
+                 )
             }
         };
 
@@ -82,13 +105,13 @@ class LoginForm extends Component{
                 <FormLabel>Password</FormLabel>
                 <FormInput  onChangeText={passwordChanged.bind(this)} value={password} secureTextEntry={true}/>
                 {this.inputError({type:"password", value: password})}
-                {loadButton()}
+                {loadingSpinner()}
 
-                <Section style={{ display: 'flex', justifyContent:'center', flexDirection: 'row'}}>
-                    <TouchableOpacity onPress={()=>{Actions.forgotPassword()}}>
-                        <Text style={forgotPasswordTextStyle}>Forgot Password</Text>
-                    </TouchableOpacity>
-                </Section>
+                {loadButton()}
+                {forgotPasswordSection()}
+
+
+
 
 
 
@@ -100,7 +123,8 @@ class LoginForm extends Component{
 const mapStateToProps = (state, ownProps)=>{
      return {
         email: state.auth.email,
-        password: state.auth.password
+        password: state.auth.password,
+        loading: state.auth.loading
     }
 };
 export default connect(mapStateToProps, {
