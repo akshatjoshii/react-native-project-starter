@@ -13,6 +13,8 @@ import reducers from './reducers'
 export default class App extends Component{
 
     render(){
+        //ReduxThunk middleware is to dispatch types on asysnc request
+        //passing reducers on createStore method, whic later passed to Provider imported from react-redux
         const store = createStore(reducers, {}, applyMiddleware(ReduxThunk));
         return (
             <Provider store={store}>
@@ -22,7 +24,7 @@ export default class App extends Component{
         )
     }
 }
-
+//to view network request on console
 XMLHttpRequest = GLOBAL.originalXMLHttpRequest ?
     GLOBAL.originalXMLHttpRequest :
     GLOBAL.XMLHttpRequest;

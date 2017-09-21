@@ -10,6 +10,7 @@ import _ from 'lodash';
 import { FormLabel, FormInput,FormValidationMessage, Button } from 'react-native-elements';
 
 import * as aks from '../../actions/methods';
+import storage from '../../common/storage';
 
 import { emailChanged, passwordChanged, loginUser } from '../../actions'
 import Section from '../../common/Section';
@@ -23,8 +24,30 @@ class LoginForm extends Component{
     onLogin(){
         const {email, password} = this.props;
         console.log('logging in');
-        this.props.loginUser({email, password});
+        this.props.loginUser({email, password}, (response, error)=>{
+            if(response){
+                console.log(response);
+                storage.save({
+                    key: 'loginState',   // Note: Do not use underscore("_") in key!
+                    data: {
+                        csrf_token: response.csrf_token,
+                        current_user: response.current_user,
+                        logout_token: response.logout_token
+
+                    },
+                    // if not specified, the defaultExpires will be applied instead.
+                    // if set to null, then it will never expire.
+                    expires: null
+                });
+                Actions.main();
+            }
+            if(error){
+
+            }
+        });
     }
+
+
     inputError(input){
         const {validateEmail, validatePassword} = aks.default;
         switch (input.type){
@@ -38,7 +61,8 @@ class LoginForm extends Component{
             case "password":
                 if(validatePassword(input.value)){
                     return
-                }else if(_.trim(input.value).length>0){
+                }else if(_.trim(input.value).length<0){
+                    console.log('true');
                     return (<FormValidationMessage>Invalid Password</FormValidationMessage>)
                 }
                 break;
@@ -49,9 +73,13 @@ class LoginForm extends Component{
     }
 
     render(){
-        const {emailChanged, passwordChanged, email, password, loading} = this.props;
+        const {emailChanged, passwordChanged, email, password, loading, error} = this.props;
         const {forgotPasswordTextStyle} = style;
 
+        const onRequestError = ()=>{
+            console.log(error);
+            return (<FormValidationMessage>{error.message}</FormValidationMessage>)
+        };
         const forgotPasswordSection = ()=>{
             if(loading !==true){
                 return (
@@ -97,7 +125,7 @@ class LoginForm extends Component{
 
 
         return (
-            <View>
+            <View style={{paddingTop:theme.screenPaddingTop}}>
                 <FormLabel>Username</FormLabel>
                 <FormInput onChangeText={emailChanged.bind(this)} value={email}/>
                 {this.inputError({type:"email", value:  email})}
@@ -106,15 +134,11 @@ class LoginForm extends Component{
                 <FormInput  onChangeText={passwordChanged.bind(this)} value={password} secureTextEntry={true}/>
                 {this.inputError({type:"password", value: password})}
                 {loadingSpinner()}
+                {onRequestError()}
 
                 {loadButton()}
                 {forgotPasswordSection()}
-
-
-
-
-
-
+ 
             </View>
 
         )
@@ -124,7 +148,9 @@ const mapStateToProps = (state, ownProps)=>{
      return {
         email: state.auth.email,
         password: state.auth.password,
-        loading: state.auth.loading
+        loading: state.auth.loading,
+        response: state.auth.response,
+        error: state.auth.error
     }
 };
 export default connect(mapStateToProps, {

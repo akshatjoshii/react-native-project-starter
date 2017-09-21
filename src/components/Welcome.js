@@ -21,7 +21,7 @@ export default class extends Component{
             btnContainerStyle} = styles;
 
         return (
-            <View>
+            <View style={{paddingTop:theme.screenPaddingTop}}>
 
                 <Section style={{marginBottom:20}}>
                     <Icon

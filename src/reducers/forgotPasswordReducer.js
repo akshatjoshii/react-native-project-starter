@@ -11,7 +11,8 @@ import {
 const INITIAL_STATE = {
     email: '',
     loading: null,
-    error: ''
+    error: '', 
+    response: ''
 
 };
 
@@ -24,7 +25,7 @@ export default (state = INITIAL_STATE, action)=>{
         case REQUEST_PASSWORD_SUCCESS:
             return {...state, loading:false, response: action.payload};
         case REQUEST_PASSWORD_FAIL:
-            return {...state, loading:false, response: action.payload};
+            return {...state, loading:false, error: action.payload};
         default:
             return state;
     }

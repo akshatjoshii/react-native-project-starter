@@ -19,6 +19,7 @@ class ForgotPassword extends Component{
 
     }
     inputError(input){
+        //validation
         const {validateEmail} = aks.default;
         switch (input.type){
             case "email":
@@ -34,12 +35,29 @@ class ForgotPassword extends Component{
 
     }
     render(){
-        const {email, onForgotPassword, emailChanged, loading} = this.props;
+        const {email, onForgotPassword, emailChanged, loading, error, response} = this.props;
+        
         const loadingSpinner = ()=>{
             if(loading) {
                 return <ActivityIndicator />
             }
         };
+        const showError = ()=>{
+            console.log(error);
+            if(error){
+                return <FormValidationMessage  style={{marginTop:-10}}>{error.message}</FormValidationMessage>
+            }
+        };
+        
+        const onForgotPasswordBtnPress = ()=>{
+            // on button press
+            onForgotPassword(email, ()=>{
+                if(response){
+                    Actions.pop();
+                }
+            });
+        };
+
         const loadSubmitBtn = ()=>{
             const {validateEmail} = aks.default;
             if(loading){
@@ -47,7 +65,7 @@ class ForgotPassword extends Component{
             }
             if(validateEmail(email)){
                 return (
-                    <Button onPress={()=>{onForgotPassword(email)}}
+                    <Button onPress={onForgotPasswordBtnPress.bind(this)}
                             backgroundColor="#397af8"
                             fontSize={theme.btnFontSize}
                             fontWeight={'500'} title='SUBMIT'/>
@@ -59,23 +77,29 @@ class ForgotPassword extends Component{
             }
         };
 
+        //rendering view
         return (
-            <View>
+            <View style={{paddingTop:theme.screenPaddingTop}}>
                 <FormLabel>Email</FormLabel>
                 <FormInput value={email} onChangeText={emailChanged.bind(this) } />
                 {this.inputError({type:'email', value:email})}
                 {loadingSpinner()}
-                 {loadSubmitBtn()}
+                {showError()}
+               {loadSubmitBtn()}
 
 
             </View>
         )
     }
 }
+
+
 const mapStateToProps = (state, ownProps)=>{
     return {
         email: state.forgotPassword.email,
-        loading: state.forgotPassword.loading
+        loading: state.forgotPassword.loading,
+        error: state.forgotPassword.error,
+        response: state.forgotPassword.response
     }
 };
 

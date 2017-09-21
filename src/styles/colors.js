@@ -24,6 +24,7 @@ export  default {
     btnFontSize: 18,
     fontSize:10,
     
-    size:10
+    size:10,
+    screenPaddingTop:58,
 }
 

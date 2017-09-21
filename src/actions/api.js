@@ -4,3 +4,4 @@
 export const rootUrl = 'http://security.generationdigital.com.au';
 export const loginUrl = `${rootUrl}/user/login?_format=json`;
 export const forgotPassword = `${rootUrl}/api/password/forgotten/?_format=json`;
+export const signUpApi = `${rootUrl}/api/user/register/?_format=json`;
